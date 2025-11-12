@@ -1,0 +1,18 @@
+server:
+  port: 8080
+
+database:
+  username: root
+  password: 123456
+  port: 3306
+  host: localhost
+  db-name: go_test
+
+redis:
+  host: localhost
+  port: 6379
+  password:
+  db: 0
+
+jwt:
+  signing-key: 123456
