@@ -41,7 +41,7 @@ func GenerateToken(u *model.User) (string, time.Time, error) {
 			ExpiresAt: jwt.NewNumericDate(expirationTime), // 过期时间
 			IssuedAt:  jwt.NewNumericDate(time.Now()),     // 签发时间
 			NotBefore: jwt.NewNumericDate(time.Now()),     // 生效时间（立即生效）
-			Issuer:    "your-app-name",                    // 签发者（可选）
+			Issuer:    u.Username,                         // 签发者（可选）
 			Subject:   "user-token",                       // 主题（可选）
 		},
 	}
@@ -50,10 +50,11 @@ func GenerateToken(u *model.User) (string, time.Time, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	// 签名并生成最终 Token 字符串
-	tokenString, err := token.SignedString(config.CONFIG.Jwt.SigningKey)
+	tokenString, err := token.SignedString([]byte(config.CONFIG.Jwt.SigningKey))
 	if err != nil {
 		return "", expirationTime, fmt.Errorf("生成 Token 失败: %v", err)
 	}
+
 	return tokenString, expirationTime, nil
 }
 

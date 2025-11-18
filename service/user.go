@@ -4,7 +4,10 @@ import (
 	"bxj_gorm_job_02/config"
 	"bxj_gorm_job_02/model"
 	utils "bxj_gorm_job_02/util"
+	"context"
 	"errors"
+	"fmt"
+	"time"
 )
 
 type UserService struct {
@@ -38,21 +41,27 @@ func (s *UserService) DeleteUser(u *model.User) (*model.User, error) {
 func (u *UserService) Login(username string, password string) (model.LoginResponse, error) {
 	var user model.User
 	err := config.DB.Where("username = ?", username).First(&user).Error
+	fmt.Println("password: ", utils.BcryptHash(password))
+	fmt.Println("user password: ", user.Password)
 	if err != nil {
 		return model.LoginResponse{}, errors.New("用户名或密码错误")
 	}
-
+	result := utils.BcryptCheck(password, user.Password)
+	fmt.Println("result: ", result)
 	// 验证密码
-	if !utils.BcryptCheck(password, user.Password) {
+	if !result {
 		return model.LoginResponse{}, errors.New("用户名或密码错误")
 	}
 
 	// 生成token
 	token, expireAt, err := utils.GenerateToken(&user)
 	if err != nil {
-		return model.LoginResponse{}, errors.New("生成token失败")
+		return model.LoginResponse{}, err
 	}
-
+	err = config.REDIS.Set(context.Background(), token, user.Id, time.Hour*2).Err()
+	if err != nil {
+		return model.LoginResponse{}, err
+	}
 	loginResponse := model.LoginResponse{
 		User:      user,
 		Token:     token,

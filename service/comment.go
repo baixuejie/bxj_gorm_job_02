@@ -12,7 +12,7 @@ func (s *CommentService) Add(c *model.Comment) (*model.Comment, error) {
 	config.DB.Create(c)
 	return c, nil
 }
-func (s *CommentService) GetCommentList(postId uint) ([]model.Comment, error) {
+func (s *CommentService) GetCommentList(postId string) ([]model.Comment, error) {
 	config.DB.Where("post_id = ?", postId).Find(&model.Comment{})
 	return nil, nil
 }

@@ -1,14 +1,16 @@
 package response
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 const (
-	ERROR   = 7
-	SUCCESS = 0
+	ERROR        = 500
+	UNAUTHORIZED = 401
+	SUCCESS      = 200
 )
 
 type Response struct {
@@ -45,14 +47,20 @@ func Fail(c *gin.Context) {
 	Result(ERROR, map[string]interface{}{}, "操作失败", c)
 }
 
-func FailWithMessage(message string, c *gin.Context) {
+func FailWithMessage(message string, c *gin.Context, err error) {
+	if err != nil {
+		log.Println(err)
+	}
 	Result(ERROR, map[string]interface{}{}, message, c)
 }
 
-func NoAuth(message string, c *gin.Context) {
+func NoAuth(message string, c *gin.Context, err error) {
+	if err != nil {
+		log.Println(err)
+	}
 	c.JSON(http.StatusUnauthorized, Response{
-		ERROR,
-		nil,
+		UNAUTHORIZED,
+		map[string]interface{}{},
 		message,
 	})
 }

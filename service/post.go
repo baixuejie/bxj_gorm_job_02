@@ -13,7 +13,7 @@ func (p *PostService) GetPostList() ([]model.Post, error) {
 	err := config.DB.Find(&posts).Error
 	return posts, err
 }
-func (p *PostService) GetPostDetail(id uint) (model.Post, error) {
+func (p *PostService) GetPostDetail(id string) (model.Post, error) {
 	var post model.Post
 	err := config.DB.Where("id = ?", id).First(&post).Error
 	return post, err
@@ -22,9 +22,9 @@ func (p *PostService) AddPost(post *model.Post) (*model.Post, error) {
 	err := config.DB.Create(post).Error
 	return post, err
 }
-func (p *PostService) DeletePost(post *model.Post) (*model.Post, error) {
-	err := config.DB.Delete(post).Error
-	return post, err
+func (p *PostService) DeletePost(id string) (bool, error) {
+	err := config.DB.Where("id=?", id).Delete(&model.Post{}).Error
+	return true, err
 }
 func (p *PostService) UpdatePost(post *model.Post) (*model.Post, error) {
 	err := config.DB.Save(post).Error
